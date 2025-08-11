@@ -46,7 +46,7 @@ typedef void (*FreeFunc)(void *);
 // Libraries
 #include <stddef.h>
 #include <stdlib.h>
-
+#include <string.h>
 
 
 /// This type represents functions that are used to compare to

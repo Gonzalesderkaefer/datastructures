@@ -1,10 +1,9 @@
 // Header file
-#include "tree.h"
+#include "../include/ds.h"
 
 // Libraries
 #include <assert.h>
 #include <complex.h>
-#include <locale.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
