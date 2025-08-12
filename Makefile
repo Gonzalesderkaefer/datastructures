@@ -1,11 +1,18 @@
-# Project name
-PRJNAME := utils
-
 # Compiler
 CC := cc
 
-# Compile flags
-CFLAGS := -Werror -Wall -Wextra -pedantic -std=c99 -g 
+
+ifdef DEBUG
+	# Compile flags
+	CFLAGS := -Wall -Werror -Wextra -pedantic -std=c99 -g
+else
+	# Compile flags
+	CFLAGS := -Wall -Werror -Wextra -pedantic -std=c99
+endif
+
+
+# Test executable
+TESTEXEC := run_test.out
 
 # Source directory
 SRCDIR := src
@@ -16,61 +23,42 @@ BUILDDIR := build
 # Export dir
 TARDIR := target
 
-# Directory of header files for the source files
-HEADDIR := include/ds
+# External libraries
+EXTERN := extern
 
-# Test directory
+# Test
 TESTDIR := test
 
-# Test build dir
-TESTBUILDDIR := build/test
+# Source files
+SRCFILES := $(shell find $(SRCDIR) -type f -name *.c)
 
-# Test source files
-TESTSRC := $(shell find $(TESTDIR) -type f -name *.c)
+# Test sourcefile
+TESTSRC := $(TESTDIR)/main_test.c
 
-# All source files
-SOURCES := $(shell find $(SRCDIR) -type f -name *.c)
+# Test object file
+TESTOBJ := $(BUILDDIR)/main_test.o
 
-# Derive source files for unity build from sources
-UNITYSRC := $(patsubst $(SRCDIR)/%,$(UNITY_TARDIR)/%,$(SOURCES))
-
-# Derive object files from source files
-OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.c=.o))
-
-# Derive test object files from test source files
-TESTOBJECTS := $(patsubst $(TESTDIR)/%,$(TESTBUILDDIR)/%,$(TESTSRC:.c=.o))
+# Derive Object files from source files
+OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRCFILES:.c=.o))
 
 # Derive Header files from source files
-HEADERS := $(patsubst $(SRCDIR)/%,$(HEADDIR)/%,$(SOURCES:.c=.h))
+HEADERS := $(SOURCES:.c=.h)
 
-test: $(OBJECTS) $(BUILDDIR)/main.o
-	$(CC) $(CFLAGS) $^ -o run.out
-	@echo ""
-	@./run.out
-	@rm run.out
+############################### Custom variables ###############################
 
+################################ Custom targets ################################
 
+################################################################################
 
-testvg: $(OBJECTS) $(BUILDDIR)/main.o
-	$(CC) $(CFLAGS) $^ -o run.out
-	@echo ""
-	@valgrind ./run.out
-	@rm run.out
+test: $(OBJECTS) $(TESTOBJ)
+	$(CC) $(CFLAGS) $^ -o $(TESTEXEC)
 
 
-
-$(BUILDDIR)/main.o: $(TESTSRC)
-	@$(CC) $(CFLAGS) -c $(TESTDIR)/main.c -o $@
-
-
-# target for test source files
-# $(TESTBUILDDIR)/%.o: $(TESTDIR)/%.c
-# 	@echo "Building $(shell basename $@)"
-# 	@mkdir -p $(shell dirname $@)
-# 	$(CC) $(CFLAGS) -c $< -o $@
+$(TESTOBJ): $(TESTSRC)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Default target for source files
-$(BUILDDIR)/%.o: $(SRCDIR)/%.c $(HEADDIR)/%.h
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c $(SRCDIR)/%.h
 	@echo "Building $(shell basename $@)"
 	@mkdir -p $(shell dirname $@)
 	$(CC) $(CFLAGS) -c $< -o $@
