@@ -176,7 +176,7 @@ FreeFunc vec_dealloc_fn(const Vector *vec);
 
 #define vec_new(vector, alloc, dealloc) \
     vector.vec = (Vector *)vec_init(malloc, free, sizeof(*vector.buf)); \
-    vector.buf = vec_init_buf(vector.buf);
+    vector.buf = vec_init_buf(vector.buf)
 
 
 
@@ -195,6 +195,10 @@ FreeFunc vec_dealloc_fn(const Vector *vec);
 #define vec_del(vector) \
     vec_free_buf(vector.vec, vector.buf); \
     vec_free(vector.vec)
+
+
+#define vec_get(vector, index) vec_at(vector.vec, index)
+
 
 
 /// Initialize a vector buffer that stores temporary values

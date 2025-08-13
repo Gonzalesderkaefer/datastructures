@@ -1,5 +1,5 @@
 // Header file
-#include "tree.h"
+#include "../../include/tree.h"
 
 // Libraries
 #include <assert.h>

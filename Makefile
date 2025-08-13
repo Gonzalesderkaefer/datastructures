@@ -1,13 +1,12 @@
 # Compiler
 CC := cc
 
-
-ifdef DEBUG
+ifdef RELEASE
 	# Compile flags
-	CFLAGS := -Wall -Werror -Wextra -pedantic -std=c99 -g
+	CFLAGS := -Wall -Werror -Wextra -pedantic -std=c99 -s
 else
 	# Compile flags
-	CFLAGS := -Wall -Werror -Wextra -pedantic -std=c99
+	CFLAGS := -Wall -Werror -Wextra -pedantic -std=c99 -g
 endif
 
 
@@ -28,6 +27,9 @@ EXTERN := extern
 
 # Test
 TESTDIR := test
+
+# Public headers
+INCLUDEDIR := include
 
 # Source files
 SRCFILES := $(shell find $(SRCDIR) -type f -name *.c)
@@ -50,6 +52,15 @@ HEADERS := $(SOURCES:.c=.h)
 ############################### Custom variables ###############################
 
 ################################ Custom targets ################################
+$(BUILDDIR)/vector/vector.o: $(SRCDIR)/vector/vector.c $(INCLUDEDIR)/vector.h
+	@echo "Building $(shell basename $@)"
+	@mkdir -p $(shell dirname $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILDDIR)/tree/tree.o: $(SRCDIR)/tree/tree.c $(INCLUDEDIR)/tree.h
+	@echo "Building $(shell basename $@)"
+	@mkdir -p $(shell dirname $@)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 ################################################################################
 
@@ -58,6 +69,7 @@ test: $(OBJECTS) $(TESTOBJ)
 
 
 $(TESTOBJ): $(TESTSRC)
+	@echo "Building $(shell basename $@)"
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Default target for source files
@@ -70,4 +82,4 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.c $(SRCDIR)/%.h
 clean:
 	rm -rf build/*
 	rm -rf target/*
-	$(shell test -e run.out && rm run.out)
+	$(shell test -e *.out && rm *.out)

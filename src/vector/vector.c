@@ -10,7 +10,7 @@
 /********************************** Private ***********************************/
 
 
-#define VEC_INIT_SIZE 16
+#define VEC_INIT_SIZE 4
 
 
 
@@ -94,7 +94,7 @@ void vec_insert(Vector *vec, void *data, size_t data_len) {
         }
 
         // Copy old storage
-        memcpy(new_stroage, vec->stroage, vec->elem_size * vec->cap);
+        memcpy(new_stroage, vec->stroage, vec->elem_size * vec->len);
 
         // calculate the border pointer
         void *border_ptr = (char *)new_stroage + vec->cap *vec->elem_size;
@@ -110,6 +110,9 @@ void vec_insert(Vector *vec, void *data, size_t data_len) {
 
         // Free old storage
         vec->dealloc(vec->stroage);
+
+        // Assign new storage
+        vec->stroage = new_stroage;
     }
 
     // Determine pointer to write at
