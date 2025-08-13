@@ -1,5 +1,5 @@
 // Header file
-#include "vector.h"
+#include "../../include/vector.h"
 
 // Libraries
 #include <stddef.h>
@@ -165,6 +165,74 @@ void *vec_at(const Vector *vec, const size_t index) {
 }
 
 
+
+/// Get size of vector
+///
+/// This function gets the size of the vector
+///
+/// Parameters:
+///   - vec: handle to a Vector that was returned by `vec_init`
+///
+/// Returns:
+///   amount of elements in the vector. Length of NULL is 0;
+size_t vec_size(const Vector *vec) {
+    if (vec == NULL) {
+        return 0;
+    }
+    return vec->len;
+}
+
+/// Get size of the elements in the vector
+///
+/// This function returns the size of the elements in the vector
+///
+/// Parameters:
+///   - vec: handle to a Vector that was returned by `vec_init`
+///
+/// Returns:
+///   size of elements in the vector. if vec is NULL, 0 is returned;
+size_t vec_elem_size(const Vector *vec) {
+    if (vec == NULL) {
+        return 0;
+    }
+    return vec->elem_size;
+}
+
+
+/// Get allocate function of the vector
+///
+/// This function returns the allocator function of the vector
+///
+/// Parameters:
+///   - vec: handle to a Vector that was returned by `vec_init`
+///
+/// Returns:
+///   function pointer to the alloc function, NULL if [vec] is NULL
+AllocFunc vec_alloc_fn(const Vector *vec) {
+    if (vec == NULL) {
+        return NULL;
+    }
+    return vec->alloc;
+}
+
+
+/// Get deallocate function of the vector
+///
+/// This function returns the allocator function of the vector
+///
+/// Parameters:
+///   - vec: handle to a Vector that was returned by `vec_init`
+///
+/// Returns:
+///   function pointer to the alloc function, NULL if [vec] is NULL
+FreeFunc vec_dealloc_fn(const Vector *vec) {
+    if (vec == NULL) {
+        return NULL;
+    }
+    return vec->dealloc;
+}
+
+
 /// Initialize a vector buffer that stores temporary values
 ///
 /// This function allocates memory according to [vec's] alloc
@@ -178,6 +246,11 @@ void *vec_at(const Vector *vec, const size_t index) {
 /// Returns:
 ///   a pointer to a buffer that stores temporary values
 void *vec_init_buf(const Vector *vec) {
+    // Sanity check
+    if (vec == NULL) {
+        return NULL;
+    }
+
     void *buf = vec->alloc(vec->elem_size);
     if (buf == NULL) {
         return NULL;
@@ -196,6 +269,11 @@ void *vec_init_buf(const Vector *vec) {
 ///   - vec: handle to a Vector that was returned by `vec_init`
 ///   - buf: a pointer to a buffer that was retuned by `vec_init_buf`
 void vec_free_buf(const Vector *vec, void *buf) {
+    // Sanity check
+    if (vec == NULL || vec == NULL) {
+        return;
+    }
+
     // Store pointer to free function
     FreeFunc freefunc = vec->dealloc;
 

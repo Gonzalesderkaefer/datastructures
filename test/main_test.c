@@ -1,8 +1,8 @@
 // Libraries
 #include <stdio.h>
 
-
+#include "test_vec.c"
 
 int main(void) {
-    puts("Test is uninitialized!");
+    test_vec();
 }

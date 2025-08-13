@@ -160,15 +160,16 @@ FreeFunc vec_dealloc_fn(const Vector *vec);
 /******************************* Macro wrapper ********************************/
 
 
-#define VecOf(type) struct { Vector *vec; (type) *buf }
+#define VecOf(type) struct { Vector *vec; type *buf; }
 
 
-#define vec_push(vector) \
+#define vec_push(vector, value) \
     if (vector.vec == NULL || vector.buf == NULL) { \
         vector.vec = (Vector *)vec_init(malloc, free, sizeof(*vector.buf)); \
         vector.buf  = vec_init_buf(vector.vec); \
     } \
     if (vector.vec != NULL && vector.buf != NULL) { \
+        *vector.buf = value; \
         vec_insert(vector.vec, vector.buf, sizeof(*vector.buf)); \
     }
 
@@ -189,6 +190,11 @@ FreeFunc vec_dealloc_fn(const Vector *vec);
 
 
 #define vec_get_buf(vector) vector.buf
+
+
+#define vec_del(vector) \
+    vec_free_buf(vector.vec, vector.buf); \
+    vec_free(vector.vec)
 
 
 /// Initialize a vector buffer that stores temporary values
