@@ -38,8 +38,11 @@ TESTSRC := $(TESTDIR)/main_test.c
 # Test object file
 TESTOBJ := $(BUILDDIR)/main_test.o
 
+# Additional object files
+ADD_OBJECTS :=
+
 # Derive Object files from source files
-OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRCFILES:.c=.o))
+OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRCFILES:.c=.o)) $(ADD_OBJECTS)
 
 # Derive Header files from source files
 HEADERS := $(SOURCES:.c=.h)
