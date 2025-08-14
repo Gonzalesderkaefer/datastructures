@@ -20,7 +20,10 @@ SRCDIR := src
 BUILDDIR := build
 
 # Export dir
-TARDIR := target
+TARDIR ?= target
+
+# Export header dir
+TAR_INCLUDEDIR ?= include
 
 # External libraries
 EXTERN := extern
@@ -58,7 +61,8 @@ HEADERS := $(SOURCES:.c=.h)
 export: $(OBJECTS)
 	@echo "Creating archive..."
 	@mkdir -p target
-	ar rcs $(TARDIR)/libds.a $(OBJECTS)
+	@ar rcs $(TARDIR)/libds.a $(OBJECTS)
+	@[ $(INCLUDEDIR) = $(TAR_INCLUDEDIR) ] || cp -r $(INCLUDEDIR)/* $(TAR_INCLUDEDIR)/
 
 
 
