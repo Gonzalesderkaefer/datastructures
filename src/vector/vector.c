@@ -34,7 +34,7 @@ struct _vector {
 ///   - alloc: an allocator function the function malloc is of this type
 ///   - dealloc: a function that frees memory
 ///   - elemsize: sizeof the elements that will be stored
-Vector *vec_init(const AllocFunc alloc, const FreeFunc dealloc, const size_t elemsize) {
+Vector *vector_init(const AllocFunc alloc, const FreeFunc dealloc, const size_t elemsize) {
     // check if input is valid
     AllocFunc local_all = alloc;
     FreeFunc local_dea = dealloc;
@@ -81,7 +81,11 @@ Vector *vec_init(const AllocFunc alloc, const FreeFunc dealloc, const size_t ele
 ///   - vec: a handle to a vector that was returned by 'vec_init'
 ///   - data: the value that will be appended to the vector
 ///   - data_len: size of the data to insert
-void vec_insert(Vector *vec, void *data, size_t data_len) {
+void vector_insert(Vector *vec, void *data, size_t data_len) {
+    // Sanity check
+    if (vec == NULL || data == NULL) {
+        return;
+    }
     // Check if the size matches
     if (data_len != vec->elem_size) {
         return;
@@ -133,7 +137,12 @@ void vec_insert(Vector *vec, void *data, size_t data_len) {
 ///
 /// Parameteter:
 ///   - vec: a handle to a vector that was returned by `vec_init`
-void vec_free(Vector *vec) {
+void vector_free(Vector *vec) {
+    // Sanity check
+    if (vec == NULL) {
+        return;
+    }
+
     // Store pointer to free function
     FreeFunc freefunc = vec->dealloc;
 
@@ -156,7 +165,11 @@ void vec_free(Vector *vec) {
 ///
 /// Returns:
 ///   pointer to the value at [index] if index is valid, NULL else
-void *vec_at(const Vector *vec, const size_t index) {
+void *vector_at(const Vector *vec, const size_t index) {
+    // Sanity check
+    if (vec == NULL) {
+        return NULL;
+    }
     // Check if index is correct
     if (index >= vec->len) {
         return NULL;
@@ -178,7 +191,7 @@ void *vec_at(const Vector *vec, const size_t index) {
 ///
 /// Returns:
 ///   amount of elements in the vector. Length of NULL is 0;
-size_t vec_size(const Vector *vec) {
+size_t vector_size(const Vector *vec) {
     if (vec == NULL) {
         return 0;
     }
@@ -194,7 +207,7 @@ size_t vec_size(const Vector *vec) {
 ///
 /// Returns:
 ///   size of elements in the vector. if vec is NULL, 0 is returned;
-size_t vec_elem_size(const Vector *vec) {
+size_t vector_elem_size(const Vector *vec) {
     if (vec == NULL) {
         return 0;
     }
@@ -211,7 +224,7 @@ size_t vec_elem_size(const Vector *vec) {
 ///
 /// Returns:
 ///   function pointer to the alloc function, NULL if [vec] is NULL
-AllocFunc vec_alloc_fn(const Vector *vec) {
+AllocFunc vector_alloc_fn(const Vector *vec) {
     if (vec == NULL) {
         return NULL;
     }
@@ -228,7 +241,7 @@ AllocFunc vec_alloc_fn(const Vector *vec) {
 ///
 /// Returns:
 ///   function pointer to the alloc function, NULL if [vec] is NULL
-FreeFunc vec_dealloc_fn(const Vector *vec) {
+FreeFunc vector_dealloc_fn(const Vector *vec) {
     if (vec == NULL) {
         return NULL;
     }
@@ -248,7 +261,7 @@ FreeFunc vec_dealloc_fn(const Vector *vec) {
 ///
 /// Returns:
 ///   a pointer to a buffer that stores temporary values
-void *vec_init_buf(const Vector *vec) {
+void *vector_init_buf(const Vector *vec) {
     // Sanity check
     if (vec == NULL) {
         return NULL;
@@ -271,7 +284,7 @@ void *vec_init_buf(const Vector *vec) {
 /// Parameters
 ///   - vec: handle to a Vector that was returned by `vec_init`
 ///   - buf: a pointer to a buffer that was retuned by `vec_init_buf`
-void vec_free_buf(const Vector *vec, void *buf) {
+void vector_free_buf(const Vector *vec, void *buf) {
     // Sanity check
     if (vec == NULL || vec == NULL) {
         return;
