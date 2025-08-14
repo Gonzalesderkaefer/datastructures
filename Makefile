@@ -44,7 +44,9 @@ TESTOBJ := $(BUILDDIR)/main_test.o
 ADD_OBJECTS :=
 
 # Derive Object files from source files
-OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRCFILES:.c=.o)) $(ADD_OBJECTS)
+# OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRCFILES:.c=.o)) $(ADD_OBJECTS)
+OBJECTS := $(BUILDDIR)/vector.o \
+	   $(BUILDDIR)/tree.o
 
 # Derive Header files from source files
 HEADERS := $(SOURCES:.c=.h)
@@ -52,12 +54,20 @@ HEADERS := $(SOURCES:.c=.h)
 ############################### Custom variables ###############################
 
 ################################ Custom targets ################################
-$(BUILDDIR)/vector/vector.o: $(SRCDIR)/vector/vector.c $(INCLUDEDIR)/vector.h
+
+export: $(OBJECTS)
+	@echo "Creating archive..."
+	@mkdir -p target
+	ar rcs $(TARDIR)/libds.a $(OBJECTS)
+
+
+
+$(BUILDDIR)/vector.o: $(SRCDIR)/vector/vector.c $(INCLUDEDIR)/vector.h
 	@echo "Building $(shell basename $@)"
 	@mkdir -p $(shell dirname $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILDDIR)/tree/tree.o: $(SRCDIR)/tree/tree.c $(INCLUDEDIR)/tree.h
+$(BUILDDIR)/tree.o: $(SRCDIR)/tree/tree.c $(INCLUDEDIR)/tree.h
 	@echo "Building $(shell basename $@)"
 	@mkdir -p $(shell dirname $@)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -65,6 +75,7 @@ $(BUILDDIR)/tree/tree.o: $(SRCDIR)/tree/tree.c $(INCLUDEDIR)/tree.h
 ################################################################################
 
 test: $(OBJECTS) $(TESTOBJ)
+	@echo "Building $(shell basename $(TESTEXEC))"
 	$(CC) $(CFLAGS) $^ -o $(TESTEXEC)
 
 

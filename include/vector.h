@@ -1,16 +1,18 @@
-#ifndef JAZZY_ALLOC_TYPES
-#define JAZZY_ALLOC_TYPES
+#ifndef VECTOR_H
+#define VECTOR_H
+
 
 // Libraries
-#include<stddef.h>
-
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
 
 /// This type represents functions that are used to allocate memory
 /// the function 'malloc' is of this type
 ///
 /// Parameters:
 /// - size_t: amount of bytes needed
-typedef void *(*AllocFunc)(size_t);
+typedef void *(*VecAllocFn)(size_t);
 
 /// This type represents functions that are used to reallocate memory
 /// the function 'realloc' is of this type
@@ -18,7 +20,7 @@ typedef void *(*AllocFunc)(size_t);
 /// Parameters:
 /// - void *: old pointer
 /// - size_t: amount of bytes needed
-typedef void *(*ReAllocFunc)(void *, size_t);
+typedef void *(*VecReAllocFn)(void *, size_t);
 
 /// This type represents functions that are used to allocate initialized memory
 /// the function 'calloc' is of this type
@@ -26,31 +28,21 @@ typedef void *(*ReAllocFunc)(void *, size_t);
 /// Parameters:
 /// - void *: old pointer
 /// - size_t: amount of bytes needed
-typedef void (*CallocFunc)(size_t);
+typedef void (*VecCallocFn)(size_t);
 
 /// This type represents functions that are used to free memory
 /// the function 'free' is of this type
 ///
 /// Parameters:
 /// - void *: pointer to memory  to free
-typedef void (*FreeFunc)(void *);
+typedef void (*VecFreeFn)(void *);
 
 
-
-
-#endif // JAZZY_ALLOC_TYPES
-
-
-#ifndef VECTOR_H
-#define VECTOR_H
-
-// Libraries
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
-
-
-
+/// Handle to a vector
+///
+/// This struct represents a handle to a vector
+/// A pointer to this is used to pass into functions and
+/// perform operations on it.
 typedef struct _vector Vector;
 
 
@@ -63,7 +55,7 @@ typedef struct _vector Vector;
 ///   - alloc: an allocator function the function malloc is of this type
 ///   - dealloc: a function that frees memory
 ///   - elemsize: sizeof the elements that will be stored
-Vector *vector_init(const AllocFunc alloc, const FreeFunc dealloc, const size_t elemsize);
+Vector *vector_init(const VecAllocFn alloc, const VecFreeFn dealloc, const size_t elemsize);
 
 
 
@@ -139,7 +131,7 @@ size_t vector_elem_size(const Vector *vec);
 ///
 /// Returns:
 ///   function pointer to the alloc function, NULL if [vec] is NULL
-AllocFunc vector_alloc_fn(const Vector *vec);
+VecAllocFn vector_alloc_fn(const Vector *vec);
 
 
 
@@ -152,7 +144,7 @@ AllocFunc vector_alloc_fn(const Vector *vec);
 ///
 /// Returns:
 ///   function pointer to the alloc function, NULL if [vec] is NULL
-FreeFunc vector_dealloc_fn(const Vector *vec);
+VecFreeFn vector_dealloc_fn(const Vector *vec);
 
 
 

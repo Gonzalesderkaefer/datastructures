@@ -18,8 +18,8 @@ struct _vector {
     size_t cap;
     size_t len;
     size_t elem_size;
-    AllocFunc alloc;
-    FreeFunc dealloc;
+    VecAllocFn alloc;
+    VecFreeFn dealloc;
     void *stroage;
 };
 
@@ -34,10 +34,10 @@ struct _vector {
 ///   - alloc: an allocator function the function malloc is of this type
 ///   - dealloc: a function that frees memory
 ///   - elemsize: sizeof the elements that will be stored
-Vector *vector_init(const AllocFunc alloc, const FreeFunc dealloc, const size_t elemsize) {
+Vector *vector_init(const VecAllocFn alloc, const VecFreeFn dealloc, const size_t elemsize) {
     // check if input is valid
-    AllocFunc local_all = alloc;
-    FreeFunc local_dea = dealloc;
+    VecAllocFn local_all = alloc;
+    VecFreeFn local_dea = dealloc;
     if (alloc == NULL || dealloc == NULL) {
         local_all = malloc;
         local_dea = free;
@@ -144,7 +144,7 @@ void vector_free(Vector *vec) {
     }
 
     // Store pointer to free function
-    FreeFunc freefunc = vec->dealloc;
+    VecFreeFn freefunc = vec->dealloc;
 
     // Free storage first 
     freefunc(vec->stroage);
@@ -224,7 +224,7 @@ size_t vector_elem_size(const Vector *vec) {
 ///
 /// Returns:
 ///   function pointer to the alloc function, NULL if [vec] is NULL
-AllocFunc vector_alloc_fn(const Vector *vec) {
+VecAllocFn vector_alloc_fn(const Vector *vec) {
     if (vec == NULL) {
         return NULL;
     }
@@ -241,7 +241,7 @@ AllocFunc vector_alloc_fn(const Vector *vec) {
 ///
 /// Returns:
 ///   function pointer to the alloc function, NULL if [vec] is NULL
-FreeFunc vector_dealloc_fn(const Vector *vec) {
+VecFreeFn vector_dealloc_fn(const Vector *vec) {
     if (vec == NULL) {
         return NULL;
     }
@@ -291,7 +291,7 @@ void vector_free_buf(const Vector *vec, void *buf) {
     }
 
     // Store pointer to free function
-    FreeFunc freefunc = vec->dealloc;
+    VecFreeFn freefunc = vec->dealloc;
 
     // Free storage first 
     freefunc(buf);

@@ -38,7 +38,7 @@ typedef enum {
     RightRot,
 } RotationDir;
 
-static TreeNode *node_init(const void *value, const TreeNode *parent, size_t elem_size, AllocFunc alloc) {
+static TreeNode *node_init(const void *value, const TreeNode *parent, size_t elem_size, TreeAllocFn alloc) {
     // Allocate Node
     TreeNode *new_node = alloc(sizeof(TreeNode) + elem_size);
     if (new_node == NULL) {
@@ -163,7 +163,7 @@ static TreeNode *node_balance(TreeNode *node) {
 }
 
 
-static void node_free(FreeFunc dealloc, TreeNode *node) {
+static void node_free(TreeFreeFn dealloc, TreeNode *node) {
     dealloc(node);
 }
 
@@ -175,16 +175,16 @@ static void node_free(FreeFunc dealloc, TreeNode *node) {
 struct _Tree {
     size_t elem_size;
     TreeNode *root;
-    AllocFunc alloc;
-    FreeFunc dealloc;
-    Comparator comp;
+    TreeAllocFn alloc;
+    TreeFreeFn dealloc;
+    TreeComparator comp;
 };
 
 
-Tree *tree_init(const size_t elem_size, const AllocFunc alloc, const FreeFunc dealloc, const Comparator comp) {
+Tree *tree_init(const size_t elem_size, const TreeAllocFn alloc, const TreeFreeFn dealloc, const TreeComparator comp) {
     // Check if alloc and free could be NULL
-    AllocFunc local_alloc = alloc;
-    FreeFunc local_free = dealloc;
+    TreeAllocFn local_alloc = alloc;
+    TreeFreeFn local_free = dealloc;
     if (alloc == NULL || dealloc == NULL) {
         local_alloc = malloc;
         local_free = free;
@@ -221,7 +221,7 @@ Tree *tree_from_handle(SpecialTree handle) {
 }
 
 
-SpecialTree tree_init_special(const size_t elem_size, AllocFunc alloc, FreeFunc dealloc, Comparator comp) {
+SpecialTree tree_init_special(const size_t elem_size, TreeAllocFn alloc, TreeFreeFn dealloc, TreeComparator comp) {
 
     Tree *tree_ptr = tree_init(elem_size, alloc, dealloc, comp);
     if (tree_ptr == NULL) {
@@ -232,7 +232,7 @@ SpecialTree tree_init_special(const size_t elem_size, AllocFunc alloc, FreeFunc 
 
     void *handle_and_buffer = tree_ptr->alloc(sizeof(Tree *) + elem_size);
     if (handle_and_buffer == NULL) {
-        FreeFunc dealloc = tree_ptr->dealloc;
+        TreeFreeFn dealloc = tree_ptr->dealloc;
         dealloc(tree_ptr);
         return NULL;
     }
@@ -255,7 +255,7 @@ void tree_free_special(SpecialTree handle) {
     }
     Tree *tree = tree_from_handle(handle);
     void *handle_and_buffer = (char *)handle - sizeof(Tree *);
-    FreeFunc dealloc = tree->dealloc;
+    TreeFreeFn dealloc = tree->dealloc;
     tree_free(tree);
     dealloc(handle_and_buffer);
 }
@@ -263,7 +263,7 @@ void tree_free_special(SpecialTree handle) {
 
 
 
-Tree *tree_init_def(const size_t elem_size, const Comparator comp) {
+Tree *tree_init_def(const size_t elem_size, const TreeComparator comp) {
     // Allcoate local tree
     Tree local_tree = {
         .elem_size = elem_size,
@@ -501,7 +501,7 @@ const void *tree_lookup(const Tree *tree, const void *value) {
 }
 
 
-static void free_nodes(TreeNode *root, FreeFunc dealloc) {
+static void free_nodes(TreeNode *root, TreeFreeFn dealloc) {
     if (root == NULL) {
         return;
     } else if (root->left == NULL && root->right == NULL) {
@@ -623,7 +623,7 @@ void tree_free(Tree *tree) {
     // Free all nodes
     free_nodes(tree->root, tree->dealloc);
 
-    FreeFunc dealloc = tree->dealloc;
+    TreeFreeFn dealloc = tree->dealloc;
     dealloc(tree);
 }
 

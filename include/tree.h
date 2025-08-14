@@ -1,45 +1,3 @@
-#ifndef JAZZY_ALLOC_TYPES
-#define JAZZY_ALLOC_TYPES
-
-// Libraries
-#include<stddef.h>
-
-
-/// This type represents functions that are used to allocate memory
-/// the function 'malloc' is of this type
-///
-/// Parameters:
-/// - size_t: amount of bytes needed
-typedef void *(*AllocFunc)(size_t);
-
-/// This type represents functions that are used to reallocate memory
-/// the function 'realloc' is of this type
-///
-/// Parameters:
-/// - void *: old pointer
-/// - size_t: amount of bytes needed
-typedef void *(*ReAllocFunc)(void *, size_t);
-
-/// This type represents functions that are used to allocate initialized memory
-/// the function 'calloc' is of this type
-///
-/// Parameters:
-/// - void *: old pointer
-/// - size_t: amount of bytes needed
-typedef void (*CalloFunc)(size_t);
-
-/// This type represents functions that are used to free memory
-/// the function 'free' is of this type
-///
-/// Parameters:
-/// - void *: pointer to memory  to free
-typedef void (*FreeFunc)(void *);
-
-
-#endif // JAZZY_ALLOC_TYPES
-
-
-
 #ifndef JAZZY_TREE_H
 #define JAZZY_TREE_H
 
@@ -49,9 +7,31 @@ typedef void (*FreeFunc)(void *);
 #include <string.h>
 
 
+/// This type represents functions that are used to allocate memory
+/// the function 'malloc' is of this type
+///
+/// Parameters:
+/// - size_t: amount of bytes needed
+typedef void *(*TreeAllocFn)(size_t);
+
+/// This type represents functions that are used to free memory
+/// the function 'free' is of this type
+///
+/// Parameters:
+/// - void *: pointer to memory  to free
+typedef void (*TreeFreeFn)(void *);
+
 /// This type represents functions that are used to compare to
 /// blocks of memory the function 'memcmp' is of this type
-typedef int (*Comparator)(const void *, const void *, size_t);
+///
+/// Parameters:
+///   - void *: first block of memory
+///   - void *: second block of memory
+///   - size_t: how many bytes o compare
+typedef int (*TreeComparator)(const void *, const void *, size_t);
+
+
+
 
 
 /// A handle to a tree
@@ -73,7 +53,7 @@ typedef struct _Tree Tree;
 ///
 /// Returns:
 ///   A pointer to a tree or NULL if the memory allocation fails
-Tree *tree_init(const size_t elem_size, const AllocFunc alloc, const FreeFunc dealloc, const Comparator comp);
+Tree *tree_init(const size_t elem_size, const TreeAllocFn alloc, const TreeFreeFn dealloc, const TreeComparator comp);
 
 
 
@@ -211,7 +191,7 @@ typedef void *SpecialTree;
 ///
 /// Returns:
 ///   A pointer to a value buffer or NULL if the memory allocation fails
-SpecialTree tree_init_special(const size_t elem_size, AllocFunc alloc, FreeFunc dealloc, Comparator comp);
+SpecialTree tree_init_special(const size_t elem_size, TreeAllocFn alloc, TreeFreeFn dealloc, TreeComparator comp);
 
 /// Get a tree handle from a special handle
 ///
