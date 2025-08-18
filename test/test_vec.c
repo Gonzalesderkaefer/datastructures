@@ -6,13 +6,6 @@
 #include <stdlib.h>
 
 
-#define vec__new(vector, alloc, dealloc) { \
-    .vec = vec_init(malloc, free, sizeof(*vector.buf)), \
-    .buf = vec_init_buf(vector.vec) \
-}
-
-
-
 
 void test_vec(void) {
     VecOf(int) vector = vec_new(vector, malloc, free);
