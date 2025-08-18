@@ -187,7 +187,7 @@ VecFreeFn vector_dealloc_fn(const Vector *vec);
 /// Create a new Vec
 ///
 /// This macro creates a new Vec with a specified alloc and dealloc function
-/// The filed [vector] is the name of the new variable so if you have Vec
+/// The field [vector] is the name of the new variable so if you have Vec
 /// called cool_vector the first field in this needs to be cool_vector
 ///
 /// Example:
@@ -205,7 +205,7 @@ VecFreeFn vector_dealloc_fn(const Vector *vec);
 /// Recommeneded to be used after vec_new;
 ///
 /// Example:
-///   VecOf(int) cooler_vector = vec_new(cool_vector, malloc, free);
+///   VecOf(int) cooler_vector = vec_new(cooler_vector, malloc, free);
 ///   if (!vec_ok(cooler_vector)) {
 ///       return; // error handling
 ///   }
@@ -243,7 +243,7 @@ VecFreeFn vector_dealloc_fn(const Vector *vec);
 
 /// Initialize a vector buffer that stores temporary values
 ///
-/// This function allocates memory according to [vec's] alloc
+/// This function allocates memory according to [vec]'s alloc
 /// function to store values temporarily. This function is actually
 /// not meant to be used by end users. It serves as a helper function
 /// for the macro wrapper
