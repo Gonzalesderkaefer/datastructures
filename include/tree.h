@@ -100,119 +100,108 @@ void tree_delete(Tree *tree, const void *value);
 void tree_free(Tree *tree);
 
 
+/********************* Helper functions for macro wrapper *********************/
+
+/// Initialize a buffer for temporary values
+///
+/// This function initializes a temporary buffer
+/// where values can go.
+///
+/// Parameters:
+///   - tree: handle to a tree that was returned by `tree_init`
+///
+/// Returns:
+///   A buffer that is allocated according to [tree]'s alloc function
+void *tree_init_buf(const Tree *tree);
+
+
+
+/// Free temporary buffer
+///
+/// This function frees a temporary buffer according to [tree]'s 
+/// dealloc function
+///
+/// Parameters:
+///   - tree: handle to a tree that was returned by `tree_init`
+///   - buf: buffer that was returned by `tree_init_buf
+void tree_free_buf(const Tree *tree, void *buf);
+
+
 
 /******************************* Macro wrapper ********************************/
 
-/// Initialize a tree
-/// 
-/// This macro initializes a tree and assigns it to [ptr]
-/// ptr should be pointer to the type you plan to store in
-/// the tree.
+/// Tree of a type (wrapper struct)
 ///
-/// Parameters:
+/// This macro works like a typedef with a parameter
 ///
-#define tree_new(ptr, alloc, dealloc, compare) \
-    ptr = tree_init_special(sizeof(*ptr), alloc, dealloc, compare)
+/// Example:
+///   TreeOf(int) tree = {0}; // Tree of integers
+#define TreeOf(T) struct { Tree *tree; T *buf }
 
 
-/// Put a value into a Tree
+/// Put a value into a tree
 ///
-/// This macro inserts a value into a tree. The handle
-/// to the tree has to be pointer to the type of [value] and should
-/// be initially be set to NULL. This macro mutates the value the pointer
-/// that is provided.
-///
-/// Parameters:
-///   - tree: a pointer to a type of [value]
-///   - value: value that needs to be inserted
+/// Example:
+///   TreeOf(int) cool_tree = {0}; // Tree of integers
+///   tree_put(cool_tree, 1024);
 #define tree_put(tree, value) \
-    if (tree == NULL) { \
-        tree = tree_init_special(sizeof(*tree), malloc, free, memcmp); \
+    if (tree.tree == NULL || tree.buf == NULL) { \
+        tree.tree = tree_init(sizeof(*tree.buf), malloc, free, memcmp); \
+        tree.buf = tree_init_buf(tree.tree); \
     } \
-    if (tree != NULL) { \
-        *tree = value; \
-        tree_insert(tree_from_handle(tree), tree, (sizeof(*tree))); \
+    if (tree.tree != NULL && tree.buf != NULL) { \
+        *tree.buf = value; \
+        tree_insert(tree.tree, tree.buf, sizeof(*tree.buf)); \
     }
 
-/// Get a value from the tree
+
+/// Get a value from a tree
 ///
-/// This macro gets [value] from the [tree] provided and stores
-/// it in the provided [variable]. The value in the variable should not
-/// be mutated. If [tree] is NULL [varaible] will also be NULL
 ///
-/// Parameters:
-///   - variable: the variable which stores a pointer to the value in the tree.
-///   - tree: a pointer to a type of [value]
-///   - value: the value to lookup
+/// Example:
+///   TreeOf(int) cool_tree = {0};
+///   tree_put(cool_tree, 1024);
+///   tree_get(int *value, cool_tree, 1024); // You can also pass in already declared variables.
+///   assert(value != NULL);
 #define tree_get(variable, tree, value) \
-    if (tree != NULL) { \
-        *tree = value; \
+    if (tree.buf != NULL) { \
+        *tree.buf = value; \
     } \
-    variable = (tree_lookup(tree_from_handle(tree), tree)); \
+    variable = tree_lookup(tree, tree.buf)
 
-
-/// Delete a tree
+/// Remove a value from a tree
 ///
-/// This macro frees/deletes a tree that is accessed through a special
-/// handle.
+/// Example:
+///   TreeOf(int) cool_tree = {0};
+///   tree_put(cool_tree, 1024);
+///   tree_remove(cool_tree, 1024);
+#define tree_remove(tree, value) \
+    if (tree.buf != NULL) { \
+        *tree.buf = value; \
+    } \
+    tree_delete(tree, tree.buf)
+
+
+
+
+
+/// Helper function for tree_deletion/tree_freeing
+static inline void _tree_del(Tree *tree, void *buf) {
+    if (tree != NULL && buf != NULL) {
+        tree_free_buf(tree, buf);
+        tree_free(tree);
+    }
+}
+/// Free the entire tree.
 ///
-/// Parameters:
-///   - tree: a pointer to a type of [value]
-#define tree_del(tree) \
-    tree_free_special(tree);
-
-/****************** Implementation Details for macro wrapper ******************/
-
-
-
-/// Special handle to a tree
-///
-/// This type represents a special handle to a tree. This pointer actually
-/// points to a temporary buffer that is used to store values that are
-/// passed to the tree.
-typedef void *SpecialTree;
+/// Example:
+///   TreeOf(int) cool_tree = {0};
+///   tree_put(cool_tree, 1024);
+///   tree_remove(cool_tree, 1024);
+///   tree_del(cool_tree)
+#define tree_del(tree) _tree_del(tree.tree, tree.buf)
 
 
 
 
-
-/// Initialize a Tree with a value buffer
-///
-/// This function works like `tree_init` but the pointer that is returned by
-/// `tree_init` lies sizeof(Tree *) bytes behind the pointer retuned by this
-/// function. This function is actually not meant to be used normally it is a
-/// helper for a future macro wrapper for this data structure
-///
-/// Parameters:
-///   - elem_size: size of the elements that are stored in the tree
-///   - alloc: memory allocator
-///   - dealloc: memory free function
-///   - comp: function used to compare two values
-///
-/// Returns:
-///   A pointer to a value buffer or NULL if the memory allocation fails
-SpecialTree tree_init_special(const size_t elem_size, TreeAllocFn alloc, TreeFreeFn dealloc, TreeComparator comp);
-
-/// Get a tree handle from a special handle
-///
-/// This function returns a normal tree handle from a SpecialHandle
-///
-/// Parameters:
-///   - handle: special tree handle that was returned by `tree_init_w_buf` 
-///
-/// Returns:
-///   - A normal tree handle
-Tree *tree_from_handle(SpecialTree handle);
-
-
-
-
-/// Free the entire tree
-///
-/// This function frees the tree according to [dealloc] which was specified
-/// in `tree_init_special`. The tree should not be used after it has been freed.
-///
-/// Parameters:
-///   - handle: special handle to a tree that was returned by `tree_init_special`
-void tree_free_special(SpecialTree handle);
-#endif // JAZZY_TREE_H
+#endif

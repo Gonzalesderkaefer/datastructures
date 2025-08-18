@@ -211,55 +211,6 @@ Tree *tree_init(const size_t elem_size, const TreeAllocFn alloc, const TreeFreeF
     return new_tree;
 }
 
-Tree *tree_from_handle(SpecialTree handle) {
-    // Sanity check
-    if (handle == NULL) {
-        return NULL;
-    }
-    void *tree_struct = (char *)handle - sizeof(Tree *);
-    return *(Tree **)tree_struct;
-}
-
-
-SpecialTree tree_init_special(const size_t elem_size, TreeAllocFn alloc, TreeFreeFn dealloc, TreeComparator comp) {
-
-    Tree *tree_ptr = tree_init(elem_size, alloc, dealloc, comp);
-    if (tree_ptr == NULL) {
-        return NULL;
-    }
-
-
-
-    void *handle_and_buffer = tree_ptr->alloc(sizeof(Tree *) + elem_size);
-    if (handle_and_buffer == NULL) {
-        TreeFreeFn dealloc = tree_ptr->dealloc;
-        dealloc(tree_ptr);
-        return NULL;
-    }
-
-
-    // Copy tree pointer to handle_and_buffer
-    memcpy(handle_and_buffer, &tree_ptr, sizeof(Tree *));
-
-    // Get buffer pointer
-    void *buf_ptr = (char *)handle_and_buffer + sizeof(Tree *);
-
-
-    return buf_ptr;
-}
-
-
-void tree_free_special(SpecialTree handle) {
-    if (handle == NULL) {
-        return;
-    }
-    Tree *tree = tree_from_handle(handle);
-    void *handle_and_buffer = (char *)handle - sizeof(Tree *);
-    TreeFreeFn dealloc = tree->dealloc;
-    tree_free(tree);
-    dealloc(handle_and_buffer);
-}
-
 
 
 
@@ -620,6 +571,10 @@ void tree_delete(Tree *tree, const void *value) {
 
 
 void tree_free(Tree *tree) {
+    // Sanity check
+    if (tree == NULL) {
+        return;
+    }
     // Free all nodes
     free_nodes(tree->root, tree->dealloc);
 
@@ -628,4 +583,27 @@ void tree_free(Tree *tree) {
 }
 
 
+/******************************* Macro wrapper ********************************/
 
+void *tree_init_buf(const Tree *tree) {
+    // Sanity check
+    if (tree == NULL) {
+        return NULL;
+    }
+    void *new_buf = tree->alloc(tree->elem_size * 1);
+    if (new_buf == NULL) {
+        return NULL;
+    }
+
+    return new_buf;
+}
+
+void tree_free_buf(const Tree *tree, void *buf) {
+    // Sanity check
+    if (tree == NULL || buf == NULL) {
+        return;
+    }
+
+    // Free buffer
+    tree->dealloc(buf);
+}
