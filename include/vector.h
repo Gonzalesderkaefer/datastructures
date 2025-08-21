@@ -180,7 +180,7 @@ VecFreeFn vector_dealloc_fn(const Vector *vec);
     } \
     if (vector.vec != NULL) { \
         vector.buf = value; \
-        vector_insert(vector.vec, &vector.buf, sizeof(*vector.buf)); \
+        vector_insert(vector.vec, &vector.buf, sizeof(vector.buf)); \
     }
 
 /// Create a new Vec

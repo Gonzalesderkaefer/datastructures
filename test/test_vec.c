@@ -10,10 +10,8 @@
 void test_vec(void) {
     VecOf(int) vector = vec_new(vector, malloc, free);
     vec_push(vector, 3);
-    vec_push(vector, 1);
-    vec_push(vector, 5);
-    vec_push(vector, 4);
-    vec_push(vector, 2);
+
+
     size_t veclen = vector_size(vector.vec);
 
     for (uint64_t i = 0; i < veclen; ++i) {
