@@ -68,10 +68,23 @@ typedef struct pair Pair;
 /// according to [map]'s alloc function
 ///
 /// Parameters:
-///   - map: Handler to a map that was retunred by map_init();
+///   - map: pointer to a map that was retunred by map_init();
+///   - k_ptr: pointer to a key
+///   - v_ptr: pointer to the value
+///
+/// Returns:
+///   A pointer to a pair that needs to be freed by `pair_free`
 static Pair *pair_init(const Map *map, const void *k_ptr, const void *v_ptr);
 
-
+/// Free a pair
+///
+/// This function frees a Pair by freeing the memory allocated to it
+/// according to [map]'s dealloc function
+///
+/// Parameters:
+///   - map: pointer to a map that was retunred by map_init();
+///   - pair: Pointer to a pair returned by `pair_init()`
+static void pair_free(const Map *map, Pair *pair);
 /***************************** Map implementation *****************************/
 struct map {
     const MapAllocFn alloc; /* Nonnull */
@@ -133,6 +146,16 @@ static Pair *pair_init(const Map *map, const void *k_ptr, const void *v_ptr) {
 }
 
 
+
+static void pair_free(const Map *map, Pair *pair) {
+    // If Map was NULL something went wrong
+    if (map == NULL) {
+        fprintf(stderr,"map was NULL in %s:%d", __FILE__, __LINE__);
+        return;
+    }
+    // Free the pair
+    map->dealloc(pair);
+}
 
 
 

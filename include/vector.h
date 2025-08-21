@@ -163,7 +163,7 @@ VecFreeFn vector_dealloc_fn(const Vector *vec);
 ///
 /// Example:
 ///   VecOf(int) vector = {0}; // Vector of integers
-#define VecOf(type) struct { Vector *vec; type *buf; }
+#define VecOf(T) struct { Vector *vec; T buf; }
 
 /// Push value into a Vec
 ///
@@ -175,13 +175,12 @@ VecFreeFn vector_dealloc_fn(const Vector *vec);
 ///   VecOf(int) vector = {0}; // Needed to make sure that the Vec is initialized
 ///   vec_push(vector, 2048);
 #define vec_push(vector, value) \
-    if (vector.vec == NULL || vector.buf == NULL) { \
-        vector.vec = (Vector *)vector_init(malloc, free, sizeof(*vector.buf)); \
-        vector.buf  = vector_init_buf(vector.vec); \
+    if (vector.vec == NULL) { \
+        vector.vec = (Vector *)vector_init(malloc, free, sizeof(vector.buf)); \
     } \
-    if (vector.vec != NULL && vector.buf != NULL) { \
-        *vector.buf = value; \
-        vector_insert(vector.vec, vector.buf, sizeof(*vector.buf)); \
+    if (vector.vec != NULL) { \
+        vector.buf = value; \
+        vector_insert(vector.vec, &vector.buf, sizeof(*vector.buf)); \
     }
 
 /// Create a new Vec
@@ -193,8 +192,7 @@ VecFreeFn vector_dealloc_fn(const Vector *vec);
 /// Example:
 ///   VecOf(int) cool_vector = vec_new(cool_vector, malloc, free);
 #define vec_new(vector, alloc, dealloc) { \
-    .vec = vector_init(malloc, free, sizeof(*vector.buf)), \
-    .buf = vector_init_buf(vector.vec) \
+    .vec = vector_init(malloc, free, sizeof(vector.buf)), \
 }
 
 
@@ -209,7 +207,7 @@ VecFreeFn vector_dealloc_fn(const Vector *vec);
 ///   if (!vec_ok(cooler_vector)) {
 ///       return; // error handling
 ///   }
-#define vec_ok(vector) vector.vec != NULL && vector.buf != NULL
+#define vec_ok(vector) vector.vec != NULL
 
 
 
@@ -224,7 +222,6 @@ VecFreeFn vector_dealloc_fn(const Vector *vec);
 ///   /* Do something */
 ///   vec_del(vector);
 #define vec_del(vector) \
-    vector_free_buf(vector.vec, vector.buf); \
     vector_free(vector.vec)
 
 /// Get a value at an index
