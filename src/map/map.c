@@ -52,8 +52,14 @@ typedef void (*MapFreeFn)(void *);
 ///
 /// Parameters:
 ///   - void *: pointer to the beginning of the key
-///   - size_t: length of the key (does not have to be used)
-typedef unsigned int (*MapHashFn)(void *, size_t);
+typedef unsigned int (*MapHashFn)(void *);
+
+
+Map *map_init(const MapAllocFn alloc, const MapFreeFn dealloc, const MapHashFn hash,
+        const size_t key_len, const size_t val_len) {
+}
+
+
 
 /***************************** Pair declarations ******************************/
 /// Pair type
