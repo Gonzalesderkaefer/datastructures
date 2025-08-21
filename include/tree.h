@@ -136,7 +136,7 @@ void tree_free_buf(const Tree *tree, void *buf);
 ///
 /// Example:
 ///   TreeOf(int) tree = {0}; // Tree of integers
-#define TreeOf(T) struct { Tree *tree; T *buf }
+#define TreeOf(T) struct { Tree *tree; T buf }
 
 
 /// Put a value into a tree
@@ -145,13 +145,12 @@ void tree_free_buf(const Tree *tree, void *buf);
 ///   TreeOf(int) cool_tree = {0}; // Tree of integers
 ///   tree_put(cool_tree, 1024);
 #define tree_put(tree, value) \
-    if (tree.tree == NULL || tree.buf == NULL) { \
-        tree.tree = tree_init(sizeof(*tree.buf), malloc, free, memcmp); \
-        tree.buf = tree_init_buf(tree.tree); \
+    if (tree.tree == NULL) { \
+        tree.tree = tree_init(sizeof(tree.buf), malloc, free, memcmp); \
     } \
-    if (tree.tree != NULL && tree.buf != NULL) { \
-        *tree.buf = value; \
-        tree_insert(tree.tree, tree.buf, sizeof(*tree.buf)); \
+    if (tree.tree != NULL) { \
+        tree.buf = value; \
+        tree_insert(tree.tree, &tree.buf, sizeof(tree.buf)); \
     }
 
 
@@ -165,9 +164,9 @@ void tree_free_buf(const Tree *tree, void *buf);
 ///   assert(value != NULL);
 #define tree_get(variable, tree, value) \
     if (tree.buf != NULL) { \
-        *tree.buf = value; \
+        tree.buf = value; \
     } \
-    variable = tree_lookup(tree, tree.buf)
+    variable = tree_lookup(tree, &tree.buf)
 
 /// Remove a value from a tree
 ///
@@ -177,21 +176,14 @@ void tree_free_buf(const Tree *tree, void *buf);
 ///   tree_remove(cool_tree, 1024);
 #define tree_remove(tree, value) \
     if (tree.buf != NULL) { \
-        *tree.buf = value; \
+        tree.buf = value; \
     } \
-    tree_delete(tree, tree.buf)
+    tree_delete(tree, &tree.buf)
 
 
 
 
 
-/// Helper function for tree_deletion/tree_freeing
-static inline void _tree_del(Tree *tree, void *buf) {
-    if (tree != NULL && buf != NULL) {
-        tree_free_buf(tree, buf);
-        tree_free(tree);
-    }
-}
 /// Free the entire tree.
 ///
 /// Example:
@@ -199,7 +191,7 @@ static inline void _tree_del(Tree *tree, void *buf) {
 ///   tree_put(cool_tree, 1024);
 ///   tree_remove(cool_tree, 1024);
 ///   tree_del(cool_tree)
-#define tree_del(tree) _tree_del(tree.tree, tree.buf)
+#define tree_del(tree) tree_free(tree.tree)
 
 
 
